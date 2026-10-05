@@ -30,6 +30,9 @@ jobs:
       - name: Show toolchain
         run: mise current
 
+      - name: Install Rust components
+        run: rustup component add rustfmt clippy
+
       - name: Format check
         run: mise run lint-fmt
 
