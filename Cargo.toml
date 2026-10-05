@@ -11,7 +11,8 @@ documentation = "https://github.com/deuriib/omniroute-zed#readme"
 keywords = ["zed", "omniroute", "llm", "openai-compatible", "sync"]
 categories = ["command-line-utilities"]
 authors = ["Deuri Vasquez <deuriib@gmail.com>"]
-publish = false
+publish = true
+exclude = [".github/", "mise.toml", "rust-toolchain.toml", "extension/"]
 
 [[bin]]
 name = "omniroute-zed"
