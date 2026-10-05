@@ -1,0 +1,115 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-gnu
+            archive: omniroute-zed-x86_64-pc-windows-gnu.zip
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: omniroute-zed-x86_64-unknown-linux-gnu.tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            archive: omniroute-zed-aarch64-apple-darwin.tar.gz
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (${{ matrix.target }})
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: Install MinGW (Windows GNU target)
+        if: matrix.os == 'windows-latest'
+        run: choco install mingw --no-progress -y
+
+      - name: Build release
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Package (Windows zip)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $bin = "target/${{ matrix.target }}/release/omniroute-zed.exe"
+          Compress-Archive -Path $bin -DestinationPath "${{ matrix.archive }}"
+
+      - name: Package (tar.gz)
+        if: matrix.os != 'windows-latest'
+        run: |
+          tar -czf "${{ matrix.archive }}" \
+            -C "target/${{ matrix.target }}/release" omniroute-zed
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive }}
+          path: ${{ matrix.archive }}
+          if-no-files-found: error
+
+  release:
+    name: publish GitHub release
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*
+          generate_release_notes: true
+          body: |
+            ## Install
+
+            Download the binary for your OS, then:
+
+            ```sh
+            omniroute-zed status
+            omniroute-zed sync     # one-shot into Zed settings.json
+            omniroute-zed watch    # refresh every 5 minutes
+            ```
+
+            Set `OMNIROUTE_API_KEY` in your environment so Zed can call the
+            `omniroute` provider, then restart Zed.
+
+            See [CHANGELOG.md](./CHANGELOG.md) for details.

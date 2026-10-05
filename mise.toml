@@ -1,0 +1,75 @@
+#
+# OmniRoute -> Zed integration
+#
+# Toolchain + tasks for the omniroute-zed syncer.
+# Docs: https://mise.jdx.dev/configuration.html
+#
+[tools]
+# Host triple is pinned explicitly to `gnu`. mise's Rust backend otherwise
+# installs the MSVC build, which cannot link on this machine: there is no
+# Visual Studio `link.exe`, so rustc falls back to the GNU coreutils `link`
+# and dies with `link: extra operand`. The MinGW toolchain (WinLibs gcc) is
+# present and links correctly.
+#
+# Do NOT pin a bare version here: mise reads `rust-version` from Cargo.toml
+# and rewrites a bare value to that exact patch release. Keeping the
+# `stable-<triple>` form avoids that rewrite.
+rust = "stable-x86_64-pc-windows-gnu"
+
+[settings]
+env_shell_expand = true
+
+[tasks.build]
+description = "Build the omniroute-zed syncer (release)"
+run = "cargo build --release"
+
+[tasks.sync-omniroute]
+alias = "sync"
+description = "Sync OmniRoute models into Zed settings.json once"
+run = "cargo run --quiet --release -- sync"
+
+[tasks.watch-omniroute]
+alias = "watch"
+description = "Sync OmniRoute models on a loop (default 5 minutes)"
+run = "cargo run --quiet --release -- watch"
+
+[tasks.status-omniroute]
+alias = "status"
+description = "Check OmniRoute reachability and show the current model count"
+run = "cargo run --quiet --release -- status"
+
+[tasks.test]
+description = "Run the test suite"
+run = "cargo test"
+
+[tasks.lint-fmt]
+description = "rustfmt check"
+run = "cargo fmt --check"
+
+[tasks.lint-clippy]
+description = "Clippy, denying warnings"
+run = "cargo clippy --all-targets -- -D warnings"
+
+[tasks.lint]
+description = "Format check + clippy, both deny warnings"
+depends = ["lint-fmt", "lint-clippy"]
+
+[tasks.check]
+description = "Lint + test"
+depends = ["lint", "test"]
+
+[tasks.clean]
+description = "Remove build artifacts"
+run = "cargo clean"
+
+[tasks.install]
+description = "Install omniroute-zed to ~/.local/bin (host syncer)"
+run = "cargo install --path . --root \"$HOME/.local\" --force"
+
+[tasks.install-extension]
+description = "Print where to point Zed dev-extension installer (extension/)"
+run = "echo \"In Zed: Extensions -> Install Dev Extension -> select ./extension\""
+
+[tasks.release-check]
+description = "Local pre-tag gate: same checks CI runs before a release"
+depends = ["check", "build"]

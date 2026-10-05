@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: fmt, clippy, test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # mise owns the toolchain. The pinned host triple matters on Windows,
+      # where the default MSVC host has no linker on some machines; the GNU
+      # host is used there instead.
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        with:
+          version: v2
+
+      - name: Show toolchain
+        run: mise current
+
+      - name: Format check
+        run: mise run lint-fmt
+
+      - name: Clippy
+        run: mise run lint-clippy
+
+      - name: Tests
+        run: mise run test
+
+      - name: Verify the binary builds in release
+        run: mise run build
+
+      - name: Validate extension manifest + snippets
+        run: |
+          python3 -c "import json,tomllib; tomllib.load(open('extension/extension.toml','rb')); json.load(open('extension/snippets/snippets.json')); print('manifest + snippets valid')"

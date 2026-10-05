@@ -1,0 +1,36 @@
+[package]
+name = "omniroute-zed"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Syncs OmniRoute's OpenAI-compatible models into Zed settings.json and registers the OmniRoute MCP server"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/deuriib/omniroute-zed"
+homepage = "https://github.com/deuriib/omniroute-zed"
+documentation = "https://github.com/deuriib/omniroute-zed#readme"
+keywords = ["zed", "omniroute", "llm", "openai-compatible", "sync"]
+categories = ["command-line-utilities"]
+authors = ["Deuri Vasquez <deuriib@gmail.com>"]
+publish = false
+
+[[bin]]
+name = "omniroute-zed"
+path = "src/main.rs"
+
+[dependencies]
+ureq = { version = "3", default-features = false, features = ["json", "gzip"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+clap = { version = "4", features = ["derive", "env"] }
+# Zed settings.json is JSONC, not strict JSON: real files carry comments and
+# trailing commas. The CST lets us edit in place without destroying either.
+jsonc-parser = { version = "0.34", features = ["cst"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+# Keep the binary lean: we only need a small subset of time formatting and we
+# hand-roll the sleep loop, so no tokio/runtime dependency is required.
+[profile.release]
+strip = true
+lto = "thin"

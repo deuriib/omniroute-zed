@@ -1,0 +1,15 @@
+# Build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# Scratch crate used to validate the JSONC round-trip against a real file.
+/probe/
+/probe-input.json
+
+# Never commit a real settings file or a captured API key.
+settings.json
+settings.json.bak
+*.omniroute-tmp
+.env
+.env.*

@@ -1,0 +1,14 @@
+# Pinned so a fresh clone builds identically on any machine.
+#
+# Host triple is `windows-gnu` because this repo is developed on Windows
+# without Visual Studio Build Tools. MSVC builds are not possible here: there
+# is no `link.exe` on PATH, and rustc falls back to the GNU coreutils `link`
+# (which fails with `link: extra operand`). If you have Build Tools installed,
+# delete this file and run `rustup default stable-x86_64-pc-windows-msvc`.
+#
+# `wasm32-wasip2` is included so this repo can also build a real Zed extension
+# (WASM guest) later without a second toolchain install. Zed compiles
+# extensions to `wasm32-wasip2`.
+[toolchain]
+channel = "stable"
+targets = ["wasm32-wasip2"]

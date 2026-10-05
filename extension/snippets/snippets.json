@@ -1,0 +1,17 @@
+{
+  "omniroute-sync": {
+    "prefix": "omniroute-sync",
+    "description": "Sync OmniRoute models into Zed settings (run in a terminal)",
+    "body": ["cargo run --quiet --release --manifest-path Cargo.toml -- sync"]
+  },
+  "omniroute-watch": {
+    "prefix": "omniroute-watch",
+    "description": "Watch OmniRoute models and refresh Zed settings every 5 minutes",
+    "body": ["cargo run --quiet --release --manifest-path Cargo.toml -- watch --interval 300"]
+  },
+  "omniroute-status": {
+    "prefix": "omniroute-status",
+    "description": "Check OmniRoute reachability and model count",
+    "body": ["cargo run --quiet --release --manifest-path Cargo.toml -- status"]
+  }
+}
