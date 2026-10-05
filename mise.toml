@@ -73,3 +73,7 @@ run = "echo \"In Zed: Extensions -> Install Dev Extension -> select ./extension\
 [tasks.release-check]
 description = "Local pre-tag gate: same checks CI runs before a release"
 depends = ["check", "build"]
+
+[tasks.bump]
+description = "Bump version across Cargo.toml + extension.toml (usage: mise run bump patch|minor|patch --dry-run)"
+run = "node scripts/bump-version.mjs"

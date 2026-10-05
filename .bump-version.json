@@ -1,0 +1,7 @@
+{
+  "files": ["Cargo.toml", "extension/extension.toml"],
+  "updateSubpackage": false,
+  "requireVersion": false,
+  "tagAnnotation": "v",
+  "preRelease": false
+}
