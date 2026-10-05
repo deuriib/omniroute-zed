@@ -2,6 +2,7 @@
 
 [![ci](https://github.com/deuriib/omniroute-zed/actions/workflows/ci.yml/badge.svg)](https://github.com/deuriib/omniroute-zed/actions/workflows/ci.yml)
 [![release](https://github.com/deuriib/omniroute-zed/actions/workflows/release.yml/badge.svg)](https://github.com/deuriib/omniroute-zed/releases)
+[![crates.io](https://img.shields.io/crates/v/omniroute-zed.svg)](https://crates.io/crates/omniroute-zed)
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](./LICENSE-MIT)
 
 Wire [OmniRoute](https://github.com/diegosouzapw/OmniRoute) into [Zed](https://zed.dev) as an LLM provider, and keep the model list in sync automatically.
@@ -33,9 +34,17 @@ Two verified Zed behaviours do the actual wiring:
 
 The second one matters most: **Zed reads the API key by itself**. This tool never has to put a secret in your config. It only needs the key to fetch `/v1/models`.
 
-## Install locally
+## Install
 
-### 1. Host syncer (does the real work)
+### From crates.io (easiest, needs Rust)
+
+```sh
+cargo install omniroute-zed
+omniroute-zed status
+omniroute-zed sync
+```
+
+### From source
 
 ```sh
 mise install
@@ -44,6 +53,8 @@ mise run install   # cargo install --path . --root ~/.local --force
 ```
 
 Requires Rust (mise handles it) and a running OmniRoute gateway on `http://localhost:20128`.
+
+### API key (both methods)
 
 Set the key in Zed's environment so Zed can call the provider:
 
@@ -54,10 +65,12 @@ Set the key in Zed's environment so Zed can call the provider:
 
 Then restart Zed.
 
-### 2. Companion extension (snippets only)
+### Companion extension (snippets, local install)
 
 In Zed: Extensions -> `Install Dev Extension` -> select `./extension`.
 No build step — there is no WASM crate, just `extension.toml` + snippets.
+
+No registry PR: the extension is intentionally local-only (see below).
 
 ## Usage
 
