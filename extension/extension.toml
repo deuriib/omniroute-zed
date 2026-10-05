@@ -1,7 +1,7 @@
 id = "omniroute"
 name = "OmniRoute"
 description = "OmniRoute snippets plus a host syncer that keeps the OmniRoute OpenAI-compatible provider in Zed settings."
-version = "0.1.0"
+version = "0.2.0"
 schema_version = 1
 authors = ["Deuri Vasquez <deuriib@gmail.com>"]
 repository = "https://github.com/deuriib/omniroute-zed"
