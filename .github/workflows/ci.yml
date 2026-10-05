@@ -20,30 +20,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # mise owns the toolchain. The pinned host triple matters on Windows,
-      # where the default MSVC host has no linker on some machines; the GNU
-      # host is used there instead.
-      - name: Install mise
-        uses: jdx/mise-action@v2
-
-
-      - name: Show toolchain
-        run: mise current
-
-      - name: Install Rust components
-        run: rustup component add rustfmt clippy
+      # Native toolchain per runner OS. NOTE: mise.toml pins
+      # `stable-x86_64-pc-windows-gnu` for local dev on a machine without
+      # MSVC Build Tools — that triple cannot install on Linux/macOS
+      # runners, so CI deliberately does NOT use mise for the toolchain.
+      # The mise tasks are thin cargo wrappers; CI calls cargo directly.
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
 
       - name: Format check
-        run: mise run lint-fmt
+        run: cargo fmt --check
 
       - name: Clippy
-        run: mise run lint-clippy
+        run: cargo clippy --all-targets -- -D warnings
 
       - name: Tests
-        run: mise run test
+        run: cargo test
 
       - name: Verify the binary builds in release
-        run: mise run build
+        run: cargo build --release
 
       - name: Validate extension manifest + snippets
         run: |
